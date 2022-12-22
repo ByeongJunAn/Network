@@ -1,0 +1,126 @@
+= 인터넷 정보 서비스 (Internet Information Service) IIS
+
+MS 웹서비스와 FTP 서비스를 제공하는 응용프로그램
+
+동시 접속 20명 제한 (윈도우 client 운영체제 가장 큰 제한)
+
+웹서버 : apache, nginx (linux)
+         IIS(windows)
+
+
+= TCP/IP 4계층
+
+(1). TCP/IP 4계층 응용계층(Application Layer = OSI 7, 6 ,5)
+응용계층 프로토콜
+
+SMTP: Send Mail Trasfer Protocol 메일 전송(보내기)프로토콜
+POP3: Post Office Protocol v3 메일 수신(받기)프로토콜
+IMAP: Internet Message Access Protocol 메일 수신(받기)프로토콜
+ POP3와 IMAP의 차이점 : 서버로 부터 메일을 가져올때 차이발생
+   POP3는 메일을 다운로드하면서 메일을 서버에서 삭제
+    (현재는 옵션으로 서버에서 삭제하지 않기로 삭제하지 않을 수 있음)
+   IMAP은 메일을 서버에 두고 읽어 오는 형태 (동기화가 가능)
+
+
+HTTP: Hyper Text Transfer Protocol
+      논문을 읽기 쉽게 만든 프로토콜
+
+HTTPS : HTTP를 평문 전송이 아닌 보안 전송
+
+DNS Domain Name System : 도메인이름(영역이름: 사람이 알기쉽게 만든 사이트의 이름)을 IP주소로 변환 시켜주는 프로토콜
+
+telnet, ssh: 원격 터미널 접속 프로토콜 (telnet 평문, ssh 암호)
+
+ftp file transfer protocol: 파일 전송 프로토콜 
+
+SNMP Simple Network Manage Protocol : 서버나 네트워크 장비의 사용현황을 다른 서버에게 전달할 때 사용하는 프로토콜로 모니터링 용도로 많이 사용
+
+TFTP Trivial FTP : 간단한 파일 전송 프로토콜
+ FTP는 인증을 해야지만 파일을 전송할 수 있고 인증을 위해서 TCP 프로토콜을 사용해야 함 하지만, TFTP는 인증없이 UDP를 이용해 간략하게 사용할 수 있는 파일 전송 프로토콜
+
+
+(2). TCP/IP 3계층: Tranport (OSI 4계층 Transport)
+TCP : Transmission Control Protocol
+UDP : User Datagram Protocol
+
+TCP와 UDP의 공통점
+- 응용계층프로토콜을 port로 구분
+- segment 단위로 분할
+
+TCP와 UDP의 차이점
+TCP 신뢰성 프로토콜, UDP 비신뢰성 프로토콜
+ * 신뢰성: 전송 후 잘 받았는지 확인
+   비신뢰성: 전송 후 잘 받았는지 확인하지 않음
+TCP 연결지향형(Connection-Oriented), UDP: 비연결지향형(Connectionless)
+
+응용프로토콜 중 TCP 통신을 하는 프로토콜은 응용프로토콜이 가동되기 전에 TCP를 이용해 session을 연결 후에 전송하기 시작
+전송이 끝나면 연결을 끊는 finish 명령을 통해 세션을 종료 시킴
+
+TCP는 세션 -> 소켓 버퍼 -> 버퍼에서 분할과 재조립
+      Tx 보내기 버퍼, Rx 받기 버퍼
+
+TCP 분할 재조립 시 순서에 따라 분할 재조립
+UDP 받는 순서대로 처리
+
+TCP 신뢰성이 있기 때문에 에러와 흐름 제어를 하지만 UDP 하지 않음
+
+TCP stateful protocol
+UDP stateless protocol
+
+TCP Overhead가 많이 발생 UDP Overhead가 적게 발생
+
+TCP는 일반적인 문서가 중요한 프로토콜에 사용
+      (돈이 중요한 곳)
+UDP는 실시간 서비스 프로토콜에 사용
+
+
+세션 연결된 상태
+ 클라이언트와 서버간 통신 인증이 된 상태
+ 인증이 된 상태에서 데이터 송수신이 가능
+
+세션 정보
+ 한 세션 내에서 클라이언트가 서버에 전송할 데이터 정보를 의미
+ 서버는 세션 유지 시간이 끝나거나 클라이언트가 전송하려했던 데이터를 모두 수신할 때까지 클라이언트와의 세션 상태를 유지
+
+
+stateful(상태유지): 세션이 종료될 때까지 클라이언트의 세션 정보를 저장하는 프로토콜
+브라우저 : 쿠키
+서버나클라이언트: 메모리(버퍼)에 저장
+
+stateless(무상태): 서버가 클라이언트의 세션 상태및 정보를 저장하지 않는 네트워크 프로토콜
+  
+
+
+(3). 인터넷 계층(Internet Layer OSI 3계층 Network Layer)
+
+ICMP
+IGMP
+
+ARP
+RARP
+GARP
+Proxy-ARP
+
+IP
+
+IP주소
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
