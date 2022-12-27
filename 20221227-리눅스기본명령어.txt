@@ -1,0 +1,116 @@
+= 리눅스의 기본 명령어 사용법
+
+명령어 옵션 인수1 인수2 인수3
+
+옵션은 명령어 뒤에 나오도되고 인수 제일 마지막에 나와도 됨
+
+옵션과 인수가 없이 사용되는 명령어도 있음
+
+pwd
+
+띄어쓰기는 명령어, 옵션, 인수를 구분 짓는 구분자
+
+mkdir => make directory 
+mkdir 인수
+      폴더명
+
+mkdir b123 bbb
+      인수1 인수2
+
+mkdir "b123 bbb"
+
+옵션은 문자1  list => -l   all => -a    -l -a => -la = -al
+       단어형태 list(목록) => --list --all
+
+
+=설치된 리눅스의 주소 확인
+ip addr
+
+
+= 설치된 리눅스의 커널 버전확인
+uname -r
+
+설치된 리눅스의 버전확인
+RHEL계열은 cat /etc/redhat-release
+Ubuntu 계열은 cat /etc/issue
+
+= 리눅스 쉘에서 큰 따옴표, 작은 따옴표의 차이
+큰 따옴표: 리눅스의 쉘 meta 문자 중 $, \ 값을 메타문자로 인식
+           $는 변수를 불러 올 때 사용
+           \는 \뒤에 문자를 메타문자가아닌 문자그대로 인식
+
+작은 따옴표: meta문자를 문자 그대로 인식하는 것
+
+역 따옴표(백쿼터)``: 입력한 문자를 명령어로 치환 = $(명령어)
+
+
+
+cancel -> ctrl + c , quit -> q
+
+ctrl + z는 가능하면 누르지 마세요 -> background 작업 시 사용
+
+
+= redirection
+표준입력(STDIN) : ID 숫자 0으로 표시 일반적으로 키보드 입력
+표준출력(STDOUT) : ID 숫자 1로 표시 일반적으로 쉘 콘솔, 터미널, 모니터 출력
+표준에러(STDERR): ID 숫자 2로 표시 표준 출력과 동일 에러만 표시가 됨
+
+표준입력, 표준출력, 표준에러 -> 파일로 저장을하거나 파일에서 입력을 받을 때 사용
+< 표준입력, 파일의 내용을 입력받아 사용 
+    (cat 명령어와 같이 많이 사용을 함)
+> 표준출력,에러(2>)를 파일로 저장 덮어쓰기
+>> 표준출력,에러(2>>)를 파일로 저장 시 추가(이어쓰기)
+
+/dev/null -> 쓰레기통(그냥 모든걸 버리는 곳, 블랙홀)
+표준 에러 리다이렉트는 /dev/null과 합쳐서 에러를 표시 하지 않게 하기 위해 2>/dev/null
+
+
+== 여러줄을 입력하고 싶을 때 사용하며 cat<<EOF(EOF는 아무 글자나 써줘도 됨) 형식으로 사용하고 
+내용을 입력한 뒤에 EOF(위에 써준 글자)를 쓰고 엔터를 누르면 저장 된다.
+EOF 뒤에 >와 저장할 파일이름을 써주면 파일 안에 저장 된다. 
+
+sudo cat <<EOF > test
+hello world!!!!
+don't sleep
+linux suck!
+dev class all should have a job!
+EOF
+
+
+
+
+dr-xr-x---.   3 root root  187 Dec 27 16:20 root
+
+alias 재부팅 시에도 적용하기 
+
+.bashrc -> 로그인한 사용자의 환경설정 파일에 alias을 등록
+
+재부팅 없이 환경설정 파일 불러오는 명령
+source ~/.bashrc
+
+= 윈도우의 shutdown 명령어 사용하기
+shutdown -t [초단위] -f -s
+
+초단위 이후에 system종료 시킴 (관리자권한으로 하는 것을 추천)
+
+= Linux는 멀티 유저 환경을 지원하는 운영체제
+
+shutdown
+관리자가 shutdown 시키기 전에 로그인한 사용자들이 작업을 마무리하고 지정된 시간에 shutdown을 시킬 때 로그인한 사용자에게 안내를 한 후에 종료시키기 위해서 사용
+
+shutdown 11:00 -> 오전 11시에 종료
+
+shutdown +10 -> 10분후에 종료
+
+shutdown now  -> 즉시 종료
+
+shutdown +30 "logout Hardware Upgrade"
+
+shutdown -r now 즉시 재부팅
+
+shutdown -c 취소
+
+= 리눅스에서 숨김파일이나 숨김폴더는 파일이나 폴더 이름 앞에 .을 붙여주면 숨김처리가 됨
+
+
+
