@@ -1,0 +1,25 @@
+mkdir /test
+
+cd /test
+
+touch file1
+
+echo "hello" > file2
+
+cat<<EOF >>file2
+byebye
+EOF
+
+cat file2
+
+mkdir -p /test/dir1   (test 폴더에 있다면 mkdir dir1)
+
+cp file2 dir1
+
+mv file1 file1-mod
+
+ln /test/dir1/file2 /root/file2-hard
+
+ln -s /test/dir1/file2 /var/file2-soft
+
+rm -rf /test
