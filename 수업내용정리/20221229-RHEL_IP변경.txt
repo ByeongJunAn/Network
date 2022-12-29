@@ -1,0 +1,26 @@
+= 리눅스 환경 설정 파일이 존재하는 곳
+/etc
+
+= RHEL계열은 system관련 환경설정
+/etc/sysconfig
+
+네트워크관련 환경설정 파일은
+/etc/sysconfig/network-scripts 폴더에 모두 저장이 되어 있음
+환경설정 스크립트를 이용해 설정
+BOOTPROTO=dhcp -> BOOTPROTO=none
+IPADDR=192.168.255.10
+NETMASK=255.255.255.0
+GATEWAY=192.168.255.2
+DNS1=8.8.8.8
+DNS2=168.126.63.1
+
+
+= RHEL8부터는 NetworkManager 명령을 이용해 설정하는 권장
+# nmcli con show
+# nmcli con mod ens160 \
+ ipv4.addresses 192.168.255.20/24 \
+ ipv4.gateway 192.168.255.2 \
+ ipv4.dns "8.8.8.8 168.126.63.1" \
+ ipv4.method manual
+
+# nmcli con up ens160
