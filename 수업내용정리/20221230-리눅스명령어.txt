@@ -1,0 +1,242 @@
+- su (switchuser): 사용자 변경할 때 사용하는 명령
+ su 사용자명(계정명)
+
+- 리눅스에서는 계정을 생성하면 해당 계정이름과 동일한 그룹명으로 계정과 그룹이 같이 생성이 됨
+
+(윈도우는 계정을 생성하면 일반사용자인 users 그룹으로 지정이됨)
+
+= 계정확인 명령어
+id
+
+ uid: user의 id번호
+ gid: group의 id번호
+
+사용자 계정은 여러 그룹에 들어갈 수가 있음
+wheel이라는 이름의 group이 sudo를 할 수 있는 권한을 가지고 있음
+
+usermod -> 사용자계정의 여러가지 계정 정보를 변경할 때 사용하는 명령어
+
+usermod -G 그룹 사용자계정 -> 사용자 계정을 특정 그룹에 추가
+                         2차그룹이 변경이 되서
+ 
+
+usermod -g 그룹 사용자계정 -> 사용자 계정을 기존 그룹에서 지우고 등록
+
+
+usermod -aG 그룹 사용자계정  -> 2차 이상을 추가하는 경우 반드시 a 옵션을 주고 설정
+
+
+* 서로 다른 그룹에서 권한이 충돌
+  예를 들어 aaa그룹은 1234파일에 읽기 권한이 있음
+            bbb그룹은 1234파일에 읽기 권한이 없음
+           사용자 ddomung은 aaa와 bbb 그룹에 두 곳에 소속
+  이럴때 ddomung 1234파일을 읽을 수 있을까요? 없을까요?
+  그룹 권한은 허용이 우선
+
+* 공유 권한은 읽기/쓰기 파일의 권한은 읽기만 된 경우
+ 공유폴더를 통해 들어온 사용자는 파일의 쓰기가 가능할까요?
+ 거부가 우선   => access-control은 거부가 우선
+
+
+- sudo를 할 수 있는 사용자는 wheel이라는 그룹에 추가되어 있어야 sudo 할 수 있으며 sudo라는 것은 sudo 뒤의 해당 명령을 root 권한을 이용해 실행하라는 의미가 됨
+
+- wheel group이 아닌 사용자를 wheel 그룹에 추가하는 경우
+usermod -aG wheel 사용자명
+            ====
+            그룹명
+
+- chown (change owner): 소유자와 그룹을 변경
+chown 소유자:그룹 파일명 => 소유자와 그룹 전체 변경
+chown 소유자 파일명 => 소유자 변경
+chown :그룹 파일명 => 그룹 변경
+
+
+- chmod (change modify): 권한(pemission) 변경
+umask 개체가 생성될 때 부여되는 기본 permission 설정하는 값
+디렉터리는 777 - umask
+파일은 666 - umask
+로 권한이 설정이 됨
+
+root의 default umask 022  (root 그룹에 실수로 일반 사용자가 등록이 되는 경우 쓰기 권한으로인한 문제 발생을 최소화하기 위해 그룹 권한을 적게 부여하고 있음)
+
+root제외 다른 사용자의 default mask 002
+
+- chmod 사용법
+chmod 권한 파일이름
+
+권한을 주는 방법 문자형태(추가,삭제), 숫자형태(절대값)
+
+- 숫자형태
+chomd 777 a123
+chomd 755 a123
+chomd 644 a123
+
+- 문자형태
+u(소유자)		+(뒤에나오는권한추가)	rwx
+g(그룹)			-(뒤에나오는권한삭제)
+o(다른 사용자)		=(기존권한을지우고뒤에나오는권한지정)
+a(u,g,o를 합한모두)	
+
+chmod u+rw,g+rw a123 => chmod ug+rw a123
+chmod u+rw,g+r a123
+chmod u+r,g+r,o+r => chmod ugo+r a123 => chmod a+r a123
+
+chmod, chown은 하위 폴더까지 모두 같은 권한을 지정
+-R 옵션을 주면 됨
+
+= RHEL 기업용으로 만들어져서 보안설정관련해서 강력하게 적용
+특히 selinux -> root권한을 가져도 보안설정을 해주어야 시스템 프로그램이 정상적으로 작동하도록 만든 기능
+
+selinux는 해제 하고 많이 사용함
+
+[root@localhost ~]# sestatus
+SELinux status:                 enabled
+SELinuxfs mount:                /sys/fs/selinux
+SELinux root directory:         /etc/selinux
+Loaded policy name:             targeted
+Current mode:                   enforcing (현재 selinux 활성화)
+Mode from config file:          enforcing (환경설정에 selinux가 활성화되어 있는 상태 -> 재부팅하면 자동으로 활성화)
+Policy MLS status:              enabled
+Policy deny_unknown status:     allowed
+Memory protection checking:     actual (secure)
+Max kernel policy version:      33
+
+1. RHEL 계열 (보안강화) selinux 비활성화
+vi /etc/selinux/config
+7번째 줄의 SELINUX=enforcing
+
+enforcing - SELinux security policy is enforced.
+ selinux 활성화
+permissive - SELinux prints warnings instead of enforcing.
+ selinux 활성화 모니터링만 함
+disabled - No SELinux policy is loaded.
+ selinux 비활성화
+
+enforcing <-> permissive # setenforce 0
+                         # setenforce 1
+disalbed는 재부팅을 해야지만 적용
+
+#sestatus
+
+Current mode:                   permissive
+Mode from config file:          permissive
+
+
+2. 확장프로그램이 설치되는 repository 추가 
+ epel repository (extra package for enterprise linux)
+
+# dnf config-manager --set-enabled powertools
+# dnf install epel-release -y
+
+3. 아파치 설치및 아파치데몬(httpd)
+
+# dnf install httpd -y
+
+# systemctl start httpd   서비스 시작
+# systemctl status httpd  서비스 상태 확인
+# systemctl stop httpd    서비스 중지
+# systemctl reload httpd  서비스의 환경 설정 파일을 다시 불러오기 (서비스 중단 없이 다시 불러오는 것)
+# systemctl restart httpd 서비스를 stop -> start
+                          서비스의 환경설정 reload같은 역할
+# systemctl enable httpd 재부팅 시 서비스 자동시작 등록
+# systemctl enable --now httpd 서비스 시작하고 재부팅 시 서비스 자동시작 등록
+
+# curl 127.0.0.1
+
+4. 방화벽 설정
+(1). 방화벽 서비스 stop
+# systemctl stop firewalld
+# systemctl disable firewalld 재부팅 시 서비스 자동시작 등록 해제
+
+(2). 방화벽 서비스 on에서 특정 서비스 port만 제외 등록
+# firewall-cmd --permanent --add-service=http
+ (서비스로 등록하는 경우 해당 서비스의 port를 변경해서 사용하는 경우는 차단이 됨)
+
+# firewall-cmd --permanent --add-port=80/tcp (포트등록)
+
+# firewall-cmd --reload  (변경사항 적용)
+
+# firewall-cmd --list-all (방화벽 설정 확인)
+
+
+= apache(httpd) 환경설정
+(1). 아파치의 환경설정 파일은 /etc/httpd 폴더에 존재
+(2). /etc/httpd 폴더
+conf : httpd의 기본 설정파일이 존재하는 폴더로 전역환경 설정
+       httpd.conf 에 환경설정이 되어 있음
+       * conf.d와 conf.module.d의 conf라는 확장자를 가진 
+       파일을 추가 환경설정으로 등록하도록 되어 있음
+conf.d : httpd의 추가 환경 설정이 들어가 있음
+         https통신을 위한 ssl 설정, virtual host 설정, 
+         php연동환경설정, tomcat 연동 설정파일들이 존재
+ 
+conf.modules.d : httpd가 사용하는 모듈의 환경설정
+
+logs : log파일의 위치 symbolic link /var/log/httpd
+modules : 모듈 파일 위치 symbolic link /usr/lib64/httpd/modules
+run : pid 저장 위치 symbolic link
+
+(3). httpd.conf 환경설정 파일 (#은 주석)
+
+[root@localhost ~]# cat -n /etc/httpd/conf/httpd.conf
+
+    34  ServerRoot "/etc/httpd" : apache 최상위 디렉터리를 뜻함
+                                  이 위치를 기준으로 상대경로 결정이 됨
+    45  Listen 80 : http 서비스 port 번호 설정
+
+    59  Include conf.modules.d/*.conf : 모듈 파일의 config 디렉터리 지정
+
+    69  User apache : httpd의 사용자 지정 -> nobody로도 많이 지정함
+    70  Group apache : httpd의 사용자 그룹 지정 -> nobody로도 많이 지정함
+
+    89  ServerAdmin root@localhost : 서버관리자의 e-mail 주소
+  
+    98  ServerName localhost 서버name 지정
+ 	 서버 이름이 지정안된 경우 서버 이름 지정이 되지 않았다는 warning이 나타나면서 실행이 되는 경우가 있음 -> apache(httpd)실행은 됨
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using localhost.localdomain. Set the 'ServerName' directive globally to suppress this message
+
+
+   105  <Directory />  : 아파치(httpd)이 사용할 디렉터리를 설정할 때 사용하는 지시어 Dirctory 경로는 /
+   106      AllowOverride none  해당 폴더의 권한 설정
+   107      Require all denied   접근 허용 범위를 설정 all denied 모두 금지
+   108  </Directory>
+ 
+   122  DocumentRoot "/var/www/html" : httpd의 root 폴더 지정
+ 
+   127  <Directory "/var/www">
+   128      AllowOverride None   .htaccess 파일을 생성 권한 설정할 수 있음
+                                  None 위 파일의 설정 무시, All 설정을 허용
+   129      # Allow open access:
+   130      Require all granted   all granted 권한을 가진 사용자만 접근
+   131  </Directory>                 all permit
+  
+   134  <Directory "/var/www/html">
+   147      Options Indexes FollowSymLinks
+   154      AllowOverride None
+   159      Require all granted
+   160  </Directory>
+        * Options 지시어의 Indexes는 디렉터리 목록 출력 보안상 넣지 않음
+          Options 지시어의 FollowSymLinks 심볼릭 링크를 허용 
+
+   166  <IfModule dir_module>
+   167      DirectoryIndex index.html   : 기본문서 설정 
+   168  </IfModule>
+ 
+
+   174  <Files ".ht*">
+   175      Require all denied
+   176  </Files>
+         파일의 권한 설정
+
+         모듈추가(확장자)
+   286      AddType application/x-compress .Z
+   287      AddType application/x-gzip .gz .tgz
+   308      AddType text/html .shtml
+   309      AddOutputFilter INCLUDES .shtml
+  
+   319  AddDefaultCharset UTF-8 
+   
+   356  IncludeOptional conf.d/*.conf
+
+
+
