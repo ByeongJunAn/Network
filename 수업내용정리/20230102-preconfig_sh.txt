@@ -1,0 +1,69 @@
+#! /bin/bash
+
+preconfig()
+{
+dnf update -y
+dnf install epel-release -y
+hostnamectl set-hostname web1
+
+sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+setenforce 0
+
+nmcli con mod ens160 \
+ipv4.addresses 192.168.255.100/24 \
+ipv4.gateway 192.168.255.2 \
+ipv4.dns "8.8.8.8 168.126.63.1" \
+ipv4.method manual
+
+nmcli con up ens160
+
+dnf install chrony -y
+
+sed -i 's/^pool/\#pool/' /etc/chrony.conf
+sed -i 's/^server/\#server/' /etc/chrony.conf
+
+cat <<EOF >> /etc/chrony.conf
+server time.bora.net
+server time.google.com
+EOF
+
+systemctl enable --now chronyd
+
+timedatectl set-timezone Asia/Seoul
+}
+
+
+apache_install()
+{
+dnf install httpd -y
+
+firewall-cmd --permanent --add-port=80/tcp
+firewall-cmd --reload
+
+dnf install https://rpms.remirepo.net/enterprise/remi-release-8.rpm -y
+dnf install dnf-utils -y
+
+dnf module reset php -y
+dnf module enable php:remi-7.4 -y
+dnf update php\* -y
+
+dnf -y install php \
+php-cli \
+php-mysqlnd \
+php-zip \
+php-devel \
+php-gd \
+php-mcrypt \
+php-mbstring \
+php-curl \
+php-xml \
+php-pear \
+php-bcmath \
+php-json \
+php-imagick
+
+systemctl enable --now httpd
+}
+
+preconfig
+apache_install
