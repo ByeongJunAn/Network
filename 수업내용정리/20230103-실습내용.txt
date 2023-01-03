@@ -1,0 +1,78 @@
+# vi preconfig.sh
+--INSERT-- 아래 붙여넣기
+
+dnf update -y
+
+
+dnf config-manager --set-enabled powertools
+dnf install epel-release -y
+
+
+hostnamectl set-hostname tomcat9
+
+
+sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+setenforce 0
+
+
+
+dnf install chrony -y
+
+sed -i 's/^pool/\#pool/' /etc/chrony.conf
+sed -i 's/^server/\#server/' /etc/chrony.conf
+
+cat <<EOF >> /etc/chrony.conf
+server time.bora.net
+server time.google.com
+EOF
+
+systemctl enable --now chronyd
+
+
+timedatectl set-timezone Asia/Seoul
+
+nmcli con mod ens160 \
+ipv4.addresses 192.168.255.110/24 \
+ipv4.gateway 192.168.255.2 \
+ipv4.dns "8.8.8.8 168.126.63.1" \
+ipv4.method manual
+
+nmcli con up ens160
+
+
+================
+# ls -l
+preconfig.sh를 보면 실행권한이 없음
+
+# chmod +x preconfig.sh
+# ls -l
+# ./preconfig.sh
+
+192.168.255.130
+scp [복사할파일] [사용자계정]@[복사시킬서버의주소]:[/서버의절대경로]
+
+tomcat9 /root폴더에 preconfig.sh
+
+scp ./preconfig.sh root@192.168.255.130:/root
+yes
+비밀번호: 
+
+버전 변경을 하는 방법을 학습하기 위해 3개를 설치한 것
+dnf install java-1.8.0-openjdk.x86_64 java-11-openjdk.x86_64 java-17-openjdk.x86_64 -y
+
+
+# systemctl enable --now httpd
+# systemctl enable --now tomcat
+# systemctl restart tomcat
+
+
+SET GLOBAL validate_password.length=4;
+SET GLOBAL validate_password.mixed_case_count=0;
+SET GLOBAL validate_password.number_count=0;
+SET GLOBAL validate_password.special_char_count=0;
+
+
+mysql root의 외부 접속 허용	
+
+CREATE USER 'root'@'%' IDENTIFIED BY '1234';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
