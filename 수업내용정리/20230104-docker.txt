@@ -1,0 +1,55 @@
+scp 또는 ssh 접속 시 키가 맞지 않는다는 오류가 나오면 접속이 안되는 경우
+
+기존 ip가 사용하던 암호화키가 저장되어 있어서 발생을 함
+
+저장이 되는 곳이 known_host 파일에 저장이 되며 이 파일을 삭제하면 에러 해결이 됨
+
+
+윈도우 경우 USERS(사용자)폴더의 로그인한 계정의 .ssh 폴더에 known_hosts
+리눅스 경우 사용자 홈폴더의 .ssh 폴더에 known_hosts
+
+8 hostnamectl set-hostname docker
+
+32 ipv4.addresses 192.168.255.120/24 \
+
+scp precofig.sh root@192.168.255.128:/root
+
+
+= Docker Repo 설치
+dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+
+dnf install docker-ce docker-ce-cli containerd.io -y
+
+systemctl enable --now docker
+
+
+cat <<EOF > /var/www/html/index.html
+<html>
+<title>kedu 505 docker</title>
+<body>
+<h1> hello world!!!! </h1>
+</body>
+</html>
+EOF
+
+
+cat <<EOF >Dockerfile
+FROM httpd:latest
+COPY ./index.html /usr/local/apache2/htdocs
+EOF
+
+docker build -t my-web .
+
+cp /var/www/html/index.html .
+
+docker run -d --name web -p 80:80 my-web
+
+
+firewall-cmd --permanent --add-port=1-65535/tcp
+firewall-cmd --permanent --add-port=1-65535/udp
+firewall-cmd --reload
+
+
+ systemctl enable --now docker
+
+
