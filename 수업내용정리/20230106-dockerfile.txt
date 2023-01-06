@@ -1,0 +1,170 @@
+= Dockerfile
+
+# docker commit 명령은 docker ps -a 했을 때 나타나는 contianer를 이용해 image를 build하는 것으로 특정 이미지를 생성하는 경우 매번 container를 생성하고 image를 build하는 것은 번거로운 작업이 됨
+
+A라는 회사 index.html AAA corp라고 명기
+B라는 회사 index.html BBB biz partner라고 명기
+C라는 회사 index.html CCC company라고 명기
+
+docker commit을 이용하는 경우에는 A라는 회사의 docker run을하고 docker cp 넣어준 후 docker commit을 해야함
+그리고 B라는 회사의 docker run을하고 docker cp 넣어준 후 docker commit을 해야함
+또한 C라는 회사의 docker run을하고 docker cp 넣어준 후 docker commit을 해야함
+
+container를 실행하지 않고 바로 image를 제작할 수 있도록 docker build 라는 명령을 제공하고 있으며 이 docker build가 인식하는 파일의 이름이 Dockerfile
+
+따라서, Dockerfile을 작성한다는 것은 container image를 생성한다고 보면 됨
+
+1. Dockerfile이란?
+Docker image를 생성하기 위한 스크립트(설정파일)
+Dockerfile을 작성 후 build하면 Dockerfile안에 나열된 문법(명령어)를 top down방식으로 차례래도 수행하면 docker image 파일을 생성
+
+2. Dockerfile의 장점
+(1). 이미지가 어떻게 만들어졌는지 기록이 가능
+(2). 이미지 배포 시 최대한 적게 만들어서 배포가 가능
+(3). 컨테이너 이미지를 작동 시킬 때 특정 해동을 수행하도록 지정할 수가 있음
+
+3. Dockerfile의 작성 및 명령어
+(1). 파일이름은 Dockerfile 또는 dockerfile로 해야 함
+      -f 옵션으로 지정할 수는 있음
+(2). Docker파일을 담을 디렉터리 생성하고 해당 디렉터리에 Dockerfile을 넣어두는 형태로 작업을 많이 함
+   AAA회사 -> AAA라는 폴더 생성 후 AAA용 dockerfile
+   BBB회사 -> BBB라는 폴더 생성 후 BBB용 dockerfile
+
+(3). Docker 파일의 명령어
+ 명령어 1개가 Layer 1개 추가
+FROM 가져올이미지
+RUN 가져온 이미지 내에서 특정 명령을 수행
+CMD 이미지내에서 특정 명령을 실행 특정 인수와 함께 실행
+ 
+* 참고
+cotainer 내부 진입 시 root@containerid ~ #으로 나오는 프롬프트를 간략하게 줄여서 사용하기
+PS1="\w # "  -> working dir이 절대 경로로 표시가 됨
+PS1="\W # "  -> working dir이 상대 경로로 표시가 됨
+
+* 참고 ubuntu repo를 kakao mirror로 변경
+# sed -i 's/archive.ubuntu.com/mirror.kakao.com/g' /etc/apt/sources.list
+
+
+
+
+= docker-compose
+docker의 컨테이너를 관리하는 tool
+
+yaml 파일을 이용해 여러 컨테이너를 일괄적으로 정의하고 실행할 수 있게 만들어주는 툴로 하나의 서비스를 운영하기 위해서 여러 개의 어플리케이션(응용프로그램, process = container)을 컨테이너화된 어플리케이션 통합 관리할 수 있도록 만들어 주는 tool
+
+1. Docker compose는 docker 내장된 tool이 아닌 git hub를 통해서 배포
+https://github.com/docker/compose/releases
+
+2. Docker compose 설치
+
+# curl -L "https://github.com/docker/compose/releases/download/v2.15.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+* 인터넷이 느려서 아래 방법 사용
+# dnf install wget -y
+# wget http://www.4soso.net/docker-compose-Linux-x86_64
+# cp docker-compose-Linux-x86_64 /usr/local/bin/docker-compose
+
+# chmod +x /usr/local/bin/docker-compose
+
+# ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# docker-compose --version
+
+
+= yaml (야믈) <-> json <-> xml
+key: value 형태로 모든 것을 작성
+들여쓰기로 상위 하위 값을 표시 함
+들여쓰기가 잘 못되면 에러가 나고 josn, xml처럼 괄호또는 <> 것을 쓸 필요가 없어서 현재 환경설정 파일의 포멧으로 많이 쓰이고 있음
+
+3. Docker-compose는 dockerfile처럼 docker-compose.yaml(yml) 파일을 인식해 작동을 하고 Docker-compose내의 들어가는 키값은
+
+version:
+services:
+network:
+volume:
+
+(1). version : docker-compose가 작동을 시킬 수 있는 버전
+요즘은 대분 v3
+
+version: "3"
+
+(2). services: 컨테이너들을 정의
+
+servcies:
+  서비스의이름1(컨테이너가 사용할 이름):
+    image: 컨테이너 어떤 이미지로 가동
+    links: 컨테이너와 호스트를 링크
+    enviroment: 컨테이너 내부의 환경 변수 설정
+    command: 컨테이너 내부에서 실행될 명령어
+    depends_on: 특정 컨테이너의 의존관계를 설정
+    ports: 서비스의 컨테이너 포트 mapping
+    build: 도커 파일이 존재한다면 dockerfile build 후에 이미지로 사용
+
+  서비스의이름2(컨테이너가 사용할 이름):
+    image: 컨테이너 어떤 이미지로 가동
+    links: 컨테이너와 호스트를 링크
+    enviroment: 컨테이너 내부의 환경 변수 설정
+    command: 컨테이너 내부에서 실행될 명령어
+    depends_on: 특정 컨테이너의 의존관계를 설정
+    ports: 서비스의 컨테이너 포트 mapping
+    build: 도커 파일이 존재한다면 dockerfile build 후에 이미지로 사용 
+
+
+docker 실습 예제
+nginx + php + mysql을 설치
+
+1. 이미지 다운로드 (skip해도 됨, docker-compose 시 이미지가 없으면 다운로드)
+docker pull nginx
+docker pull php:7.4-fpm
+docker pull mysql:5.7
+
+2. docker-compose.yaml 작성
+version: '2'
+
+volumes:
+  nextcloud:
+  db:
+
+services:
+  db:
+    image: mariadb:10.5
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+
+  app:
+    image: nextcloud
+    restart: always
+    ports:
+      - 8080:80
+    links:
+      - db
+    volumes:
+      - nextcloud:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=db
+
+
+
+3. docker-compose 실행 (* 주의 사항 docker-compose.yaml이 있는 곳에서 실행)
+(1). docker-compose up --build
+ error발생하는 것을 보면서 error 확인
+ mysql에서 정상 실행이 되고 있으면 ctrl + c 로 중단하고 나옴
+
+(2). docker-compose up -d
+ 백그라운드로 cotainer가 실행이 됨
+
+(3). docker-compose stop
+ docker-copose로 실행된 컨테이너들이 중단이 됨
+
+달력 ics 파일
+https://p03-calendars.icloud.com/holidays/kr_ko.ics
