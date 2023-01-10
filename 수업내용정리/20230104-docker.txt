@@ -26,11 +26,12 @@ dnf install docker-ce docker-ce-cli containerd.io -y
 systemctl enable --now docker
 
 
+
 cat <<EOF > index.html
 <html>
-<title>kedu 505 docker</title>
+<title>keduit NCS test</title>
 <body>
-<h1> Docker hello world!!!! </h1>
+<h1> AhnByungJun - deploy application with docker</h1>
 </body>
 </html>
 EOF
@@ -43,9 +44,11 @@ EOF
 
 docker build -t my-web .
 
-cp /var/www/html/index.html .
 
-docker run -d --name web -p 80:80 my-web
+
+cp ../var/www/html/index.html .
+
+docker run -d --name web-p 8080:80 my-web
 
 
 firewall-cmd --permanent --add-port=1-65535/tcp
